@@ -1,0 +1,150 @@
+import random
+from os import system
+system("cls")
+
+bitacoras = []
+
+def limpiar_pantalla():
+    return ("cls")
+
+def agregar_bitacora(nombre_jugador, año_nacimiento, equipo, goles_contra_usa, goles_contra_mexico, goles_contra_colombia):
+    id_bitacora = random.randint(1, 100)  # Generar un ID aleatorio entre 1 y 100
+
+    if año_nacimiento <= 1985:
+        print("El jugador debe haber nacido después de 1985 para registrar la bitácora.")
+        return False
+
+    promedio_goles = (goles_contra_usa + goles_contra_mexico + goles_contra_colombia) / 3
+    if promedio_goles < 2:
+        print("El promedio de goles contra USA, México y Colombia debe ser al menos 2.")
+        return False
+
+    bitacora = {
+        "id_bitacora": id_bitacora,
+        "nombre_jugador": nombre_jugador,
+        "año_nacimiento": año_nacimiento,
+        "equipo": equipo,
+        "goles_contra_usa": goles_contra_usa,
+        "goles_contra_mexico": goles_contra_mexico,
+        "goles_contra_colombia": goles_contra_colombia
+    }
+    bitacoras.append(bitacora)
+    return True
+
+def listar_bitacoras():
+    limpiar_pantalla()
+    if not bitacoras:
+        print("No hay bitácoras registradas.")
+    else:
+        print("\nListado de todas las bitácoras:")
+        for bitacora in bitacoras:
+            print(f"ID: {bitacora['id_bitacora']}, Jugador: {bitacora['nombre_jugador']}, "
+                  f"Año Nacimiento: {bitacora['año_nacimiento']}, Equipo: {bitacora['equipo']}, "
+                  f"Goles vs USA: {bitacora['goles_contra_usa']}, "
+                  f"Goles vs México: {bitacora['goles_contra_mexico']}, "
+                  f"Goles vs Colombia: {bitacora['goles_contra_colombia']}")
+
+def buscar_bitacora_por_id(id_bitacora):
+    for bitacora in bitacoras:
+        if bitacora['id_bitacora'] == id_bitacora:
+            return bitacora
+    return None
+
+def generar_archivo_csv_equipo(nombre_equipo):
+    import csv
+
+    bitacoras_equipo = [bitacora for bitacora in bitacoras if bitacora['equipo'].lower() == nombre_equipo.lower()]
+
+    if not bitacoras_equipo:
+        print(f"No se encontraron bitácoras para el equipo {nombre_equipo}.")
+        return
+
+    nombre_archivo = f"bitacoras_{nombre_equipo.lower()}.csv"
+
+    with open(nombre_archivo, mode='w', newline='') as file:
+        writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        writer.writerow(['ID', 'Jugador', 'Año Nacimiento', 'Equipo', 'Goles vs USA', 'Goles vs México', 'Goles vs Colombia'])
+
+        for bitacora in bitacoras_equipo:
+            writer.writerow([bitacora['id_bitacora'], bitacora['nombre_jugador'], bitacora['año_nacimiento'],
+                             bitacora['equipo'], bitacora['goles_contra_usa'], bitacora['goles_contra_mexico'],
+                             bitacora['goles_contra_colombia']])
+
+    print(f"Se ha generado el archivo '{nombre_archivo}' satisfactoriamente.")
+
+equipos_validos = ['Chile', 'Argentina', 'Perú', 'Canadá']
+
+def mostrar_menu():
+    limpiar_pantalla()
+    print("Sistema de Gestión de Bitácoras de Goles de la Copa América")
+    print("1. Registrar bitácora")
+    print("2. Listar bitácoras")
+    print("3. Imprimir hoja de bitácoras (CSV por equipo)")
+    print("4. Buscar bitácora por ID")
+    print("5. Salir")
+
+def main():
+    limpiar_pantalla()
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == '1':
+            limpiar_pantalla()
+            print("\nRegistro de bitácora:")
+            nombre_jugador = input("Nombre del jugador: ")
+            año_nacimiento = int(input("Año de nacimiento (mayor a 1985): "))
+            equipo = input("Equipo: ")
+            goles_contra_usa = int(input("Goles vs USA: "))
+            goles_contra_mexico = int(input("Goles vs México: "))
+            goles_contra_colombia = int(input("Goles vs Colombia: "))
+
+            if agregar_bitacora(nombre_jugador, año_nacimiento, equipo, goles_contra_usa, goles_contra_mexico, goles_contra_colombia):
+                print("Bitácora registrada exitosamente.")
+                input("Presione Enter para continuar...")
+
+        elif opcion == '2':
+            limpiar_pantalla()
+            listar_bitacoras()
+            input("Presione Enter para continuar...")
+
+        elif opcion == '3':
+            limpiar_pantalla()
+            print("\nEquipos disponibles para generar archivo CSV:")
+            print(", ".join(equipos_validos))
+            nombre_equipo = input("Ingrese el nombre del equipo para generar el archivo CSV: ")
+            if nombre_equipo in equipos_validos:
+                generar_archivo_csv_equipo(nombre_equipo) 
+                input("Presione Enter para continuar...")
+            else:
+                print("Equipo no válido.")
+                input("Presione Enter para continuar...")
+
+        elif opcion == '4':
+            limpiar_pantalla()
+            id_buscar = int(input("Ingrese el ID de la bitácora a buscar: "))
+            bitacora_encontrada = buscar_bitacora_por_id(id_buscar)
+            if bitacora_encontrada:
+                print("\nDetalle de la bitácora encontrada:")
+                print(f"ID: {bitacora_encontrada['id_bitacora']}, Jugador: {bitacora_encontrada['nombre_jugador']}, "
+                      f"Año Nacimiento: {bitacora_encontrada['año_nacimiento']}, Equipo: {bitacora_encontrada['equipo']}, "
+                      f"Goles vs USA: {bitacora_encontrada['goles_contra_usa']}, "
+                      f"Goles vs México: {bitacora_encontrada['goles_contra_mexico']}, "
+                      f"Goles vs Colombia: {bitacora_encontrada['goles_contra_colombia']}")
+                input("Presione Enter para continuar...")
+            else:
+                print("\nNo se encontró ninguna bitácora con ese ID.")
+                input("Presione Enter para continuar...")
+
+        elif opcion == '5':
+            limpiar_pantalla()
+            print("Saliendo del programa...")
+            break
+
+        else:
+            print("Opción no válida. Por favor seleccione una opción del 1 al 5.")
+            input("Presione Enter para continuar...")
+
+if __name__ == "__main__":
+    main()
